@@ -1,6 +1,7 @@
 import os
 import httpx
 from datetime import datetime, timedelta
+import json
 
 class NEDClient:
     def __init__(self, api_key):
@@ -73,13 +74,28 @@ async def async_get_energy_mix(api_key):
         green_percentage = (green / total * 100) if total > 0 else 0
         solar_percentage = (values['solar'] / total * 100) if total > 0 else 0
         wind_percentage = (wind_total / total * 100) if total > 0 else 0
+        
+        # Calculate percentages for all sources
+        source_percentages = {
+            f"{source}_percentage": (value / total * 100) if total > 0 else 0
+            for source, value in values.items()
+        }
+        
         processed_result.append({
             'timestamp': timestamp,
             'solar_volume': values['solar'],
             'wind_volume': wind_total,
+            'wind_offshore_volume': values['wind_offshore'],
+            'coal_volume': values['coal'],
+            'gas_volume': values['gas'],
+            'nuclear_volume': values['nuclear'],
+            'biomass_volume': values['biomass'],
+            'hydro_volume': values['hydro'],
+            'other_volume': values['other'],
             'green_percentage': green_percentage,
             'solar_percentage': solar_percentage,
             'wind_percentage': wind_percentage,
+            **source_percentages,  # Include all source percentages
             'total_volume': total
         })
     return processed_result
@@ -93,7 +109,21 @@ if __name__ == "__main__":
     else:
         async def main():
             data = await async_get_energy_mix(api_key)
-            print("NED Energy Mix Data:")
-            for entry in data:
-                print(entry)
+            print("\nNED Energy Mix Data (24 hours):")
+            print(json.dumps(data, indent=2))
+            
+            # Print summary statistics for all sources
+            print("\nSummary Statistics:")
+            sources = ['solar', 'wind', 'wind_offshore', 'coal', 'gas', 'nuclear', 'biomass', 'hydro', 'other']
+            total_production = sum(entry['total_volume'] for entry in data)
+            
+            for source in sources:
+                volume = sum(entry[f'{source}_volume'] for entry in data)
+                percentage = (volume / total_production * 100) if total_production > 0 else 0
+                print(f"{source.title()} Production: {volume:,.0f} kWh ({percentage:.1f}%)")
+            
+            print(f"\nTotal Production: {total_production:,.0f} kWh")
+            avg_green_percentage = sum(entry['green_percentage'] for entry in data) / len(data)
+            print(f"Average Green Percentage: {avg_green_percentage:.1f}%")
+            
         asyncio.run(main()) 
