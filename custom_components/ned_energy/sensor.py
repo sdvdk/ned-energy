@@ -31,10 +31,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     api_key = config_entry.data[CONF_API_KEY]
 
     async def async_update_data():
-        data = await async_get_energy_mix(api_key=api_key, days=1)
+        data = await async_get_energy_mix(api_key=api_key)
         if data and len(data) > 0:
-            latest = data[-1]
-            return latest
+            return data
         return None
 
     coordinator = DataUpdateCoordinator(
@@ -68,14 +67,18 @@ class NedEnergySensor(CoordinatorEntity):
         data = self.coordinator.data
         if not data:
             return None
+        latest = data[-1]
         if self._sensor_type == "solar":
-            return data.get("solar_percentage")
+            return latest.get("solar_percentage")
         elif self._sensor_type == "wind":
-            return data.get("wind_percentage")
+            return latest.get("wind_percentage")
         elif self._sensor_type == "green":
-            return data.get("green_percentage")
+            return latest.get("green_percentage")
         return None
 
     @property
     def extra_state_attributes(self):
-        return self.coordinator.data or {}
+        data = self.coordinator.data or []
+        return {
+            "today_data": data
+        }
