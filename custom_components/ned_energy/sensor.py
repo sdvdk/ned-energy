@@ -10,21 +10,18 @@ DOMAIN = "ned_energy"
 SCAN_INTERVAL = timedelta(minutes=15)
 
 SENSOR_TYPES = {
-    "solar": {
-        "name": "NED Solar Percentage",
-        "unit": "%",
-        "icon": "mdi:weather-sunny"
-    },
-    "wind": {
-        "name": "NED Wind Percentage",
-        "unit": "%",
-        "icon": "mdi:weather-windy"
-    },
-    "green": {
-        "name": "NED Green Energy Percentage",
-        "unit": "%",
-        "icon": "mdi:leaf"
-    }
+    "solar_volume": {"name": "NED Solar Volume", "unit": "kWh", "icon": "mdi:weather-sunny", "attr": "solar_volume"},
+    "solar_percentage": {"name": "NED Solar Percentage", "unit": "%", "icon": "mdi:weather-sunny", "attr": "solar_percentage"},
+    "wind_volume": {"name": "NED Wind Volume", "unit": "kWh", "icon": "mdi:weather-windy", "attr": "wind_volume"},
+    "wind_percentage": {"name": "NED Wind Percentage", "unit": "%", "icon": "mdi:weather-windy", "attr": "wind_percentage"},
+    "green_percentage": {"name": "NED Green Energy Percentage", "unit": "%", "icon": "mdi:leaf", "attr": "green_percentage"},
+    "total_volume": {"name": "NED Total Volume", "unit": "kWh", "icon": "mdi:flash", "attr": "total_volume"},
+    "coal_volume": {"name": "NED Coal Volume", "unit": "kWh", "icon": "mdi:factory", "attr": "coal"},
+    "gas_volume": {"name": "NED Gas Volume", "unit": "kWh", "icon": "mdi:fire", "attr": "gas"},
+    "nuclear_volume": {"name": "NED Nuclear Volume", "unit": "kWh", "icon": "mdi:radioactive", "attr": "nuclear"},
+    "biomass_volume": {"name": "NED Biomass Volume", "unit": "kWh", "icon": "mdi:leaf", "attr": "biomass"},
+    "hydro_volume": {"name": "NED Hydro Volume", "unit": "kWh", "icon": "mdi:waves", "attr": "hydro"},
+    "other_volume": {"name": "NED Other Volume", "unit": "kWh", "icon": "mdi:help-circle", "attr": "other"},
 }
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
@@ -47,9 +44,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     await coordinator.async_config_entry_first_refresh()
 
     entities = [
-        NedEnergySensor(coordinator, "solar"),
-        NedEnergySensor(coordinator, "wind"),
-        NedEnergySensor(coordinator, "green")
+        NedEnergySensor(coordinator, key)
+        for key in SENSOR_TYPES.keys()
     ]
     async_add_entities(entities, True)
 
@@ -68,13 +64,14 @@ class NedEnergySensor(CoordinatorEntity):
         if not data:
             return None
         latest = data[-1]
-        if self._sensor_type == "solar":
-            return latest.get("solar_percentage")
-        elif self._sensor_type == "wind":
-            return latest.get("wind_percentage")
-        elif self._sensor_type == "green":
-            return latest.get("green_percentage")
-        return None
+        attr = SENSOR_TYPES[self._sensor_type]["attr"]
+        # For source volumes, get from latest or 0 if missing
+        if attr in latest:
+            return latest.get(attr)
+        # For other sources (coal, gas, etc.), get from today_data if present
+        if "today_data" in latest:
+            return latest["today_data"].get(attr, 0)
+        return 0
 
     @property
     def extra_state_attributes(self):

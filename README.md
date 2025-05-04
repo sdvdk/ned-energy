@@ -17,5 +17,58 @@ Home Assistant integration for retrieving the Dutch energy mix via the NED API.
 3. In Home Assistant, go to **Settings → Devices & Services → Add Integration** and search for **NED Energy**.
 4. Enter your NED API key when prompted.
 
+## Example: 24h Bar Chart with ApexCharts Card
+
+You can visualize the green, solar, and wind percentages for today using [ApexCharts Card](https://github.com/RomRider/apexcharts-card) in your Home Assistant dashboard. Here is a working example:
+
+```yaml
+type: custom:apexcharts-card
+graph_span: 24h
+span:
+  start: day
+header:
+  title: Green Energy Percentage (Bar, Today)
+  show: true
+all_series_config:
+  type: column
+series:
+  - name: Green
+    entity: sensor.ned_green_energy_percentage
+    color: "#27ae60"
+    data_generator: |
+      if (!entity.attributes.today_data) return [];
+      return entity.attributes.today_data.map(d => [
+        new Date(d.timestamp).getTime(),
+        d.green_percentage
+      ]);
+  - name: Solar
+    entity: sensor.ned_green_energy_percentage
+    color: "#f1c40f"
+    data_generator: |
+      if (!entity.attributes.today_data) return [];
+      return entity.attributes.today_data.map(d => [
+        new Date(d.timestamp).getTime(),
+        d.solar_percentage
+      ]);
+  - name: Wind
+    entity: sensor.ned_green_energy_percentage
+    color: "#2980b9"
+    data_generator: |
+      if (!entity.attributes.today_data) return [];
+      return entity.attributes.today_data.map(d => [
+        new Date(d.timestamp).getTime(),
+        d.wind_percentage
+      ]);
+yaxis:
+  - min: 0
+    max: 100
+    decimals: 1
+    apex_config:
+      tickAmount: 10
+```
+
+- Make sure you have [ApexCharts Card](https://github.com/RomRider/apexcharts-card) installed via HACS.
+- This chart will show a bar for each hour of today for green, solar, and wind percentages.
+
 ## More information
 See [Nationale Energie Dashboard](https://ned.nl/) for more information about the data source.
