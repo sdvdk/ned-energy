@@ -6,14 +6,12 @@ class NEDClient:
     def __init__(self, api_key):
         self.api_key = api_key
         self.base_url = "https://api.ned.nl/v1"
-        self.client = httpx.Client(
-            verify=False,
-            headers={
-                "X-AUTH-TOKEN": self.api_key,
-                "accept": "application/ld+json"
-            }
-        )
-    def get_utilization_data(self, point, type_id, start_date, end_date, granularity="Hour"):
+        self.headers = {
+            "X-AUTH-TOKEN": self.api_key,
+            "accept": "application/ld+json"
+        }
+
+    async def get_utilization_data(self, point, type_id, start_date, end_date, granularity="Hour"):
         params = {
             "itemsPerPage": 200,
             "point": point,
@@ -25,15 +23,16 @@ class NEDClient:
             "validfrom[strictly_before]": end_date.strftime("%Y-%m-%d"),
             "validfrom[after]": start_date.strftime("%Y-%m-%d")
         }
-        try:
-            response = self.client.get(f"{self.base_url}/utilizations", params=params)
-            response.raise_for_status()
-            data = response.json()
-            return data.get("hydra:member", [])
-        except Exception as e:
-            return []
+        async with httpx.AsyncClient(verify=False, headers=self.headers) as client:
+            try:
+                response = await client.get(f"{self.base_url}/utilizations", params=params)
+                response.raise_for_status()
+                data = response.json()
+                return data.get("hydra:member", [])
+            except Exception:
+                return []
 
-def get_energy_mix(days=1, api_key=None):
+async def async_get_energy_mix(api_key, days=1):
     if not api_key:
         api_key = os.getenv('NED_API_KEY')
     if not api_key:
@@ -49,7 +48,7 @@ def get_energy_mix(days=1, api_key=None):
         }
         result = {}
         for name, type_id in energy_types.items():
-            data = client.get_utilization_data(
+            data = await client.get_utilization_data(
                 point=0,
                 type_id=type_id,
                 start_date=start_date,

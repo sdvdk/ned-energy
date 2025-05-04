@@ -2,8 +2,9 @@
   "domain": "ned_energy",
   "name": "NED Energy",
   "version": "0.1.0",
-  "documentation": "https://github.com/<your-github>/ned-energy",
+  "documentation": "https://github.com/sdvdk/ned-energy",
   "requirements": ["httpx"],
   "dependencies": [],
-  "codeowners": ["@your-github"]
+  "codeowners": ["@sdvdk"],
+  "config_flow": true
 }
