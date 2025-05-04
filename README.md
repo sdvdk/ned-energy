@@ -19,7 +19,9 @@ Home Assistant integration for retrieving the Dutch energy mix via the NED API.
 
 ## Example: 24h Bar Chart with ApexCharts Card
 
-You can visualize the green, solar, and wind percentages for today using [ApexCharts Card](https://github.com/RomRider/apexcharts-card) in your Home Assistant dashboard. Here is a working example:
+You can visualize the data for today using [ApexCharts Card](https://github.com/RomRider/apexcharts-card) in your Home Assistant dashboard.
+
+## Example: Green Energy Mix Chart
 
 ```yaml
 type: custom:apexcharts-card
@@ -27,20 +29,11 @@ graph_span: 24h
 span:
   start: day
 header:
-  title: Green Energy Percentage (Bar, Today)
+  title: Dutch Green Energy Mix
   show: true
 all_series_config:
   type: column
 series:
-  - name: Green
-    entity: sensor.ned_green_energy_percentage
-    color: "#27ae60"
-    data_generator: |
-      if (!entity.attributes.today_data) return [];
-      return entity.attributes.today_data.map(d => [
-        new Date(d.timestamp).getTime(),
-        d.green_percentage
-      ]);
   - name: Solar
     entity: sensor.ned_green_energy_percentage
     color: "#f1c40f"
@@ -59,16 +52,86 @@ series:
         new Date(d.timestamp).getTime(),
         d.wind_percentage
       ]);
+  - name: Biomass
+    entity: sensor.ned_biomass_volume
+    color: "#2ecc71"
+    data_generator: |
+      if (!entity.attributes.today_data) return [];
+      return entity.attributes.today_data.map(d => [
+        new Date(d.timestamp).getTime(),
+        d.biomass_percentage
+      ]);
+  - name: Hydro
+    entity: sensor.ned_hydro_volume
+    color: "#3498db"
+    data_generator: |
+      if (!entity.attributes.today_data) return [];
+      return entity.attributes.today_data.map(d => [
+        new Date(d.timestamp).getTime(),
+        d.hydro_percentage
+      ]);
 yaxis:
   - min: 0
-    max: 100
     decimals: 1
     apex_config:
       tickAmount: 10
 ```
 
-- Make sure you have [ApexCharts Card](https://github.com/RomRider/apexcharts-card) installed via HACS.
-- This chart will show a bar for each hour of today for green, solar, and wind percentages.
+## Example: Gray Energy Mix Chart
+
+```yaml
+type: custom:apexcharts-card
+graph_span: 24h
+span:
+  start: day
+header:
+  title: Dutch Gray Energy Mix
+  show: true
+all_series_config:
+  type: column
+series:
+  - name: Coal
+    entity: sensor.ned_coal_volume
+    color: "#7f8c8d"
+    data_generator: |
+      if (!entity.attributes.today_data) return [];
+      return entity.attributes.today_data.map(d => [
+        new Date(d.timestamp).getTime(),
+        d.coal_percentage
+      ]);
+  - name: Gas
+    entity: sensor.ned_gas_volume
+    color: "#e74c3c"
+    data_generator: |
+      if (!entity.attributes.today_data) return [];
+      return entity.attributes.today_data.map(d => [
+        new Date(d.timestamp).getTime(),
+        d.gas_percentage
+      ]);
+  - name: Nuclear
+    entity: sensor.ned_nuclear_volume
+    color: "#9b59b6"
+    data_generator: |
+      if (!entity.attributes.today_data) return [];
+      return entity.attributes.today_data.map(d => [
+        new Date(d.timestamp).getTime(),
+        d.nuclear_percentage
+      ]);
+  - name: Other
+    entity: sensor.ned_other_volume
+    color: "#95a5a6"
+    data_generator: |
+      if (!entity.attributes.today_data) return [];
+      return entity.attributes.today_data.map(d => [
+        new Date(d.timestamp).getTime(),
+        d.other_percentage
+      ]);
+yaxis:
+  - min: 0
+    decimals: 1
+    apex_config:
+      tickAmount: 10
+```
 
 ## More information
 See [Nationale Energie Dashboard](https://ned.nl/) for more information about the data source.
