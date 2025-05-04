@@ -80,5 +80,17 @@ async def async_get_energy_mix(api_key, days=1):
         return processed_result
     except Exception as e:
         return None
-    finally:
-        client.client.close() 
+
+if __name__ == "__main__":
+    import asyncio
+    import os
+    api_key = os.getenv("NED_API_KEY")
+    if not api_key:
+        print("Please set the NED_API_KEY environment variable.")
+    else:
+        async def main():
+            data = await async_get_energy_mix(api_key, days=1)
+            print("NED Energy Mix Data:")
+            for entry in data:
+                print(entry)
+        asyncio.run(main()) 
