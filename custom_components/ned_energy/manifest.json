@@ -1,0 +1,9 @@
+{
+  "domain": "ned_energy",
+  "name": "NED Energy",
+  "version": "0.1.0",
+  "documentation": "https://github.com/<your-github>/ned-energy",
+  "requirements": ["httpx"],
+  "dependencies": [],
+  "codeowners": ["@your-github"]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "NED Energy",
+  "content_in_root": false,
+  "domains": ["sensor"],
+  "country": "NL",
+  "homeassistant": "2023.0.0"
+}
