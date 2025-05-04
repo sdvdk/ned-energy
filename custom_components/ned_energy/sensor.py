@@ -76,6 +76,19 @@ class NedEnergySensor(CoordinatorEntity):
     @property
     def extra_state_attributes(self):
         data = self.coordinator.data or []
+        attr = SENSOR_TYPES[self._sensor_type]["attr"]
+        filtered_data = []
+        is_percentage = self._sensor_type.endswith("_percentage")
+        for entry in data:
+            filtered_entry = {"timestamp": entry.get("timestamp")}
+            if attr in entry:
+                filtered_entry[attr] = entry.get(attr, 0)
+            # For percentage sensors, also include the corresponding volume
+            if is_percentage:
+                volume_attr = attr.replace("_percentage", "_volume")
+                if volume_attr in entry:
+                    filtered_entry[volume_attr] = entry.get(volume_attr, 0)
+            filtered_data.append(filtered_entry)
         return {
-            "today_data": data
+            "today_data": filtered_data
         }
