@@ -3,6 +3,7 @@
   "name": "NED Energy",
   "version": "0.1.0",
   "documentation": "https://github.com/sdvdk/ned-energy",
+  "issue_tracker": "https://github.com/sdvdk/ned-energy/issues",
   "requirements": ["httpx"],
   "dependencies": [],
   "codeowners": ["@sdvdk"],
