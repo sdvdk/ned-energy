@@ -17,11 +17,9 @@ Home Assistant integration for retrieving the Dutch energy mix via the NED API.
 3. In Home Assistant, go to **Settings → Devices & Services → Add Integration** and search for **NED Energy**.
 4. Enter your NED API key when prompted.
 
-## Example: 24h Bar Chart with ApexCharts Card
+## Example: Green Energy Mix Chart
 
 You can visualize the data for today using [ApexCharts Card](https://github.com/RomRider/apexcharts-card) in your Home Assistant dashboard.
-
-## Example: Green Energy Mix Chart
 
 ```yaml
 type: custom:apexcharts-card
@@ -35,7 +33,7 @@ all_series_config:
   type: column
 series:
   - name: Solar
-    entity: sensor.ned_green_energy_percentage
+    entity: sensor.ned_solar_percentage
     color: "#f1c40f"
     data_generator: |
       if (!entity.attributes.today_data) return [];
@@ -44,7 +42,7 @@ series:
         d.solar_percentage
       ]);
   - name: Wind
-    entity: sensor.ned_green_energy_percentage
+    entity: sensor.ned_wind_percentage
     color: "#2980b9"
     data_generator: |
       if (!entity.attributes.today_data) return [];
@@ -53,7 +51,7 @@ series:
         d.wind_percentage
       ]);
   - name: Biomass
-    entity: sensor.ned_biomass_volume
+    entity: sensor.ned_biomass_percentage
     color: "#2ecc71"
     data_generator: |
       if (!entity.attributes.today_data) return [];
@@ -62,7 +60,7 @@ series:
         d.biomass_percentage
       ]);
   - name: Hydro
-    entity: sensor.ned_hydro_volume
+    entity: sensor.ned_hydro_percentage
     color: "#3498db"
     data_generator: |
       if (!entity.attributes.today_data) return [];
@@ -91,7 +89,7 @@ all_series_config:
   type: column
 series:
   - name: Coal
-    entity: sensor.ned_coal_volume
+    entity: sensor.ned_coal_percentage
     color: "#7f8c8d"
     data_generator: |
       if (!entity.attributes.today_data) return [];
@@ -100,7 +98,7 @@ series:
         d.coal_percentage
       ]);
   - name: Gas
-    entity: sensor.ned_gas_volume
+    entity: sensor.ned_gas_percentage
     color: "#e74c3c"
     data_generator: |
       if (!entity.attributes.today_data) return [];
@@ -109,7 +107,7 @@ series:
         d.gas_percentage
       ]);
   - name: Nuclear
-    entity: sensor.ned_nuclear_volume
+    entity: sensor.ned_nuclear_percentage
     color: "#9b59b6"
     data_generator: |
       if (!entity.attributes.today_data) return [];
@@ -118,7 +116,7 @@ series:
         d.nuclear_percentage
       ]);
   - name: Other
-    entity: sensor.ned_other_volume
+    entity: sensor.ned_other_percentage
     color: "#95a5a6"
     data_generator: |
       if (!entity.attributes.today_data) return [];
